@@ -15,13 +15,13 @@ classes = ['enojado','asco','miedo','feliz','neutral','triste','sorprendido']
 
 # Cargamos el  modelo de detección de rostros
 
-prototxtPath = "ReconocimientoEmociones/face_detector/deploy.prototxt"
-weightsPath = "ReconocimientoEmociones/face_detector/res10_300x300_ssd_iter_140000.caffemodel"
+prototxtPath = "face_detector/deploy.prototxt"
+weightsPath = "face_detector/res10_300x300_ssd_iter_140000.caffemodel"
 
 faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
 
 # Carga el detector de clasificación de emociones
-emotionModel = load_model("ReconocimientoEmociones/modelFEC.h5")
+emotionModel = load_model("modelFEC.h5")
 
 # Se crea la captura de video
 cam = cv2.VideoCapture(0,cv2.CAP_DSHOW)
