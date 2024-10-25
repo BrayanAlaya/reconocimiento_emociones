@@ -39,10 +39,10 @@ class PActivities(QFrame):
 
     def add_activity(self):
       # Agregar la actividad a la lista con un ID
-      activity_name = self.activity_input.text()
-      if activity_name:
-          activity_id = generate_id()
-          self.activities_list.addItem(f"{activity_name} ({activity_id})")
+      name = self.activity_input.text()
+      if name:
+          id = generate_id()
+          self.activities_list.addItem(f"{name} ({id})")
           self.activity_input.clear()
 
     def get_data(self):

@@ -103,8 +103,8 @@ class PConcentration(QWidget):
     def log_activity(self, activity_id, activity_name, time):
         """Registrar la actividad con ID en el historial."""
         entry = {
-            "activity_id": activity_id,
-            "activity_name": activity_name,
+            "id": activity_id,
+            "name": activity_name,
             "start": "2:00pm",  # Aquí puedes registrar el inicio real
             "end": "3:00pm",    # Registrar el final real cuando termine
             "duration": time,   # Duración en minutos
