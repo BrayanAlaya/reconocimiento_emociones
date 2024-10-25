@@ -11,3 +11,4 @@ if __name__ == '__main__':
 
     # Ejecutar la aplicación
     sys.exit(app.exec())
+

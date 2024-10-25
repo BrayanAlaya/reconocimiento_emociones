@@ -25,7 +25,8 @@ class PConcentration(QWidget):
         activity_layout = QHBoxLayout()
         self.activity_label = QLabel("Selecciona una actividad:")
         self.activity_combo = QComboBox()
-        self.activity_combo.addItems(self.activities)  # Agregar actividades cargadas
+        for activity in self.activities:
+            self.activity_combo.addItem(activity['name'], activity['id'])
 
         activity_layout.addWidget(self.activity_label)
         activity_layout.addWidget(self.activity_combo)
@@ -56,36 +57,14 @@ class PConcentration(QWidget):
         self.setLayout(layout)
 
     def load_activities(self):
-        """Cargar las actividades desde user.json."""
+        """Cargar las actividades desde user.json y asignar IDs."""
         try:
             with open('data/user.json', 'r') as file:
                 settings = json.load(file)
-                return settings.get('actividades', [])  # Devolver lista de actividades
+                return settings.get('activities', [])  # Lista de actividades con IDs
         except FileNotFoundError:
-            return []  # Devolver lista vacía si no se encuentra el archivo
-
-    def confirm_activity(self):
-        activity = self.activity_combo.currentText()
-        time = self.time_spinner.value()
-
-        # Iniciar la ventana de temporizador
-        self.total_seconds = time * 60
-        self.remaining_seconds = self.total_seconds  # Inicializa remaining_seconds
-        self.timer_window = WgTimer(self.total_seconds, activity)
-        self.timer_window.show()
-
-        # Mostrar mensaje informando que la actividad ha comenzado
-        QMessageBox.information(self, "Actividad Iniciada",
-                                f"Actividad: {activity}\nTiempo: {time} minutos",
-                                QMessageBox.StandardButton.Ok)
-
-        # Iniciar el temporizador
-        self.timer_window.timer.timeout.connect(self.update_progress)
-        self.timer_window.timer.start(1000)  # Iniciar el temporizador con intervalos de 1 segundo
-
-        # Actualiza el label del círculo de progreso inicialmente
-        self.progress_circle.update_timer_label(self.remaining_seconds)
-
+            return []  # Lista vacía si no se encuentra el archivo
+        
     def cancel_activity(self):
         # Detener el temporizador y restablecer los labels
         if hasattr(self, 'timer_window'):
@@ -94,6 +73,53 @@ class PConcentration(QWidget):
         self.progress_circle.set_progress(0)
         self.progress_circle.update_timer_label(0)  # Restablece el label del círculo de progreso
         QMessageBox.information(self, "Actividad Cancelada", "La actividad ha sido cancelada.")
+
+    def confirm_activity(self):
+        activity = self.activity_combo.currentData()  # Usar el ID de la actividad seleccionada
+        activity_name = self.activity_combo.currentText()  # Nombre de la actividad seleccionada
+        time = self.time_spinner.value()
+
+        # Iniciar la ventana de temporizador
+        self.total_seconds = time * 60
+        self.remaining_seconds = self.total_seconds
+        self.timer_window = WgTimer(self.total_seconds, activity_name)
+        self.timer_window.show()
+
+        # Registrar la actividad en el historial
+        self.log_activity(activity, activity_name, time)
+
+        # Mostrar mensaje de inicio
+        QMessageBox.information(self, "Actividad Iniciada",
+                                f"Actividad: {activity_name}\nTiempo: {time} minutos",
+                                QMessageBox.StandardButton.Ok)
+
+        # Iniciar el temporizador
+        self.timer_window.timer.timeout.connect(self.update_progress)
+        self.timer_window.timer.start(1000)  # Iniciar temporizador cada 1 segundo
+
+        # Actualiza el label del círculo de progreso inicialmente
+        self.progress_circle.update_timer_label(self.remaining_seconds)
+
+    def log_activity(self, activity_id, activity_name, time):
+        """Registrar la actividad con ID en el historial."""
+        entry = {
+            "activity_id": activity_id,
+            "activity_name": activity_name,
+            "start": "2:00pm",  # Aquí puedes registrar el inicio real
+            "end": "3:00pm",    # Registrar el final real cuando termine
+            "duration": time,   # Duración en minutos
+            "date": "xx-xx-xxxx"  # Fecha real de la actividad
+        }
+
+        try:
+            with open('data/user.json', 'r+') as file:
+                data = json.load(file)
+                data["activities"].append(entry)
+                file.seek(0)
+                json.dump(data, file, indent=4)
+        except FileNotFoundError:
+            pass  # Manejar error si no existe el archivo
+
 
     def update_progress(self):
         if self.remaining_seconds > 0:
@@ -105,3 +131,4 @@ class PConcentration(QWidget):
             self.timer_window.finish_timer()
             self.progress_circle.set_progress(0)
             self.timer_window.timer.stop()  # Detener el temporizador al finalizar
+

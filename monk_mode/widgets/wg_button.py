@@ -6,22 +6,23 @@ class WgButton(QPushButton):
         self.apply_styles()
 
     def apply_styles(self):
-        """Aplicar los colores directamente con tonos de gris"""
+        """Aplicar los colores con variantes del verde"""
         self.setStyleSheet("""
             QPushButton {
-                background-color: #D3D3D3;  /* Gris claro */
-                color: #4F4F4F;  /* Texto gris oscuro */
+                background-color: #4CAF50;  /* Verde base */
+                color: white;  /* Texto blanco */
                 border: none;
                 border-radius: 10px;
                 padding: 10px;
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #B0B0B0;  /* Gris medio - para hover */
-                color: #323232;  /* Texto gris más oscuro en hover */
+                background-color: #66BB6A;  /* Verde más claro para hover */
+                color: white;
             }
             QPushButton:pressed {
-                background-color: #8E8E8E;  /* Gris más oscuro - para estado presionado */
+                background-color: #388E3C;  /* Verde más oscuro para estado presionado */
+                color: white;
             }
         """)
 

@@ -41,7 +41,7 @@ class WSplash(QMainWindow):
         # Título de la aplicación
         self.label_title = QLabel("<strong>MONK MODE</strong>", self.dropShadowFrame)
         self.label_title.setFont(QFont("Segoe UI", 40))
-        # Aplicar el color de acento
+        # Aplicar el color de acento (verde)
         self.label_title.setStyleSheet(f"color: {self.user_settings['colors']['accentColor']};")
         self.label_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.frame_layout.addWidget(self.label_title)
@@ -71,7 +71,7 @@ class WSplash(QMainWindow):
         self.progressBar.setValue(0)
         self.frame_layout.addWidget(self.progressBar)
 
-        # Texto de carga (opcional, puedes eliminarlo)
+        # Texto de carga (opcional)
         self.label_loading = QLabel("Cargando...", self.dropShadowFrame)
         self.label_loading.setFont(QFont("Segoe UI", 12))
         self.label_loading.setStyleSheet(f"color: {self.user_settings['colors']['darkerColor']};")
@@ -110,11 +110,11 @@ class WSplash(QMainWindow):
             with open("userSettings.json", "r") as file:
                 return json.load(file)
         except FileNotFoundError:
-            # Si el archivo no existe, devuelve colores por defecto
+            # Si el archivo no existe, devuelve colores por defecto con tonos de verde
             return {
                 "colors": {
-                    "accentColor": "#3498db",
-                    "darkerColor": "#2980b9",
-                    "lighterColor": "#5bb8e0"
+                    "accentColor": "#4CAF50",  # Verde
+                    "darkerColor": "#388E3C",  # Verde más oscuro
+                    "lighterColor": "#66BB6A"  # Verde más claro
                 }
             }

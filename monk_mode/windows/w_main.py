@@ -1,8 +1,9 @@
-from PyQt6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy, QSpacerItem, QPushButton
+from PyQt6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy, QSpacerItem, QGraphicsOpacityEffect
+from PyQt6.QtCore import Qt
 from pages.p_statistics import PStatistics
 from pages.p_concentration import PConcentration
 from widgets.wg_button import WgButton
-from PyQt6.QtCore import Qt
+from windows.w_settings_dialog import WSettingsDialog
 
 class WMain(QMainWindow):
     def __init__(self):
@@ -24,14 +25,12 @@ class WMain(QMainWindow):
         self.central_widget = QStackedWidget()
         self.page_statistics = PStatistics(self)
         self.central_widget.addWidget(self.page_statistics)
-        self.central_widget.setCurrentWidget(self.page_statistics)  # Establecer como página predeterminada
+        self.central_widget.setCurrentWidget(self.page_statistics)
 
-        # Cambiar el estilo del área central
-        self.central_widget.setStyleSheet("background-color: white;")  # Fondo blanco puro
+        # Aplicar estilo en blanco y negro
+        self.central_widget.setStyleSheet("background-color: white; color: black;")
+
         main_layout.addWidget(self.central_widget)
-
-        # Inicialmente, el aside derecho no se mostrará
-        self.right_sidebar = None
 
         # Contenedor principal
         container = QWidget()
@@ -39,7 +38,6 @@ class WMain(QMainWindow):
         self.setCentralWidget(container)
 
     def center(self):
-        # Centrar la ventana en la pantalla
         screen_geometry = self.screen().geometry()
         window_geometry = self.geometry()
         new_x = (screen_geometry.width() - window_geometry.width()) // 2
@@ -50,10 +48,10 @@ class WMain(QMainWindow):
         left_sidebar = QWidget()
         sidebar_layout = QVBoxLayout()
 
-        # Título "Monk Mode"
+        # Título "Monk Mode" en negro
         monk_mode_label = QLabel("Monk\nMode")
         monk_mode_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        monk_mode_label.setStyleSheet("font-size: 48px; font-weight: bold;")
+        monk_mode_label.setStyleSheet("font-size: 48px; font-weight: bold; color: black;")
         monk_mode_label.setWordWrap(True)
         sidebar_layout.addWidget(monk_mode_label)
 
@@ -64,64 +62,27 @@ class WMain(QMainWindow):
         # Espaciador
         sidebar_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
 
-        # Botón de ajustes
+        # Botón de ajustes (verde de WgButton)
         settings_button = WgButton("Ajustes")
-        settings_button.clicked.connect(self.toggle_right_sidebar)  # Conectar al método que alterna el aside derecho
+        settings_button.clicked.connect(self.show_settings_dialog)
         sidebar_layout.addWidget(settings_button)
 
         left_sidebar.setLayout(sidebar_layout)
         left_sidebar.setMinimumWidth(100)
         left_sidebar.setMaximumWidth(200)
-        left_sidebar.setStyleSheet("background-color: #FAF3E0;")  # Color hueso
+        left_sidebar.setStyleSheet("background-color: white;")
 
         return left_sidebar
 
-    def create_right_sidebar(self):
-        right_sidebar = QWidget()
-        sidebar_layout = QVBoxLayout()
-
-        # Botón "Bloquear"
-        block_button = WgButton("Bloquear")
-        block_button.clicked.connect(self.block_action)
-        sidebar_layout.addWidget(block_button)
-
-        # Botón "Actividades"
-        activities_button = WgButton("Actividades")
-        activities_button.clicked.connect(self.activities_action)
-        sidebar_layout.addWidget(activities_button)
-
-        # Botón para alternar entre modo oscuro y claro
-        toggle_theme_button = QPushButton("Toggle Dark/Light")
-        toggle_theme_button.clicked.connect(self.toggle_theme)
-        sidebar_layout.addWidget(toggle_theme_button)
-
-        right_sidebar.setLayout(sidebar_layout)
-        right_sidebar.setMinimumWidth(100)
-        right_sidebar.setMaximumWidth(200)
-        right_sidebar.setStyleSheet("background-color: #FAF3E0;")  # Color hueso
-
-        return right_sidebar
-
-    def toggle_right_sidebar(self):
-        # Alternar la visibilidad del aside derecho
-        if self.right_sidebar:
-            # Si el aside ya existe, lo removemos
-            self.centralWidget().layout().removeWidget(self.right_sidebar)
-            self.right_sidebar.deleteLater()
-            self.right_sidebar = None
+    def show_settings_dialog(self):
+        dialog = WSettingsDialog(self)
+        dialog.exec()
+    def apply_background_overlay(main_window, enabled=True):
+        if enabled:
+            # Crear un efecto de opacidad para oscurecer el fondo
+            opacity_effect = QGraphicsOpacityEffect()
+            opacity_effect.setOpacity(0.5)  # Ajusta la opacidad al 50%
+            main_window.setGraphicsEffect(opacity_effect)
         else:
-            # Si no existe, lo creamos y lo añadimos
-            self.right_sidebar = self.create_right_sidebar()
-            self.centralWidget().layout().addWidget(self.right_sidebar)
-
-    def toggle_theme(self):
-        # Implementar la lógica para alternar entre el modo oscuro y claro
-        pass
-
-    def block_action(self):
-        # Acción para el botón "Bloquear"
-        pass
-
-    def activities_action(self):
-        # Acción para el botón "Actividades"
-        pass
+            # Elimina el efecto
+            main_window.setGraphicsEffect(None)
