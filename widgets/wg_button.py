@@ -1,9 +1,11 @@
 from PyQt6.QtWidgets import QPushButton
+from PyQt6.QtCore import Qt
 
 class WgButton(QPushButton):
     def __init__(self, text="", parent=None):
         super().__init__(text, parent)
         self.apply_styles()
+        self.setCursor(Qt.CursorShape.PointingHandCursor)  # Establecer el cursor a la mano
 
     def apply_styles(self):
         """Aplicar los colores con variantes del verde"""

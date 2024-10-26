@@ -1,18 +1,21 @@
-from PyQt6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy, QSpacerItem, QGraphicsOpacityEffect
-from PyQt6.QtCore import Qt
-from pages.p_statistics import PStatistics
+from PyQt6.QtWidgets import QMainWindow, QStackedWidget, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QSizePolicy, QSpacerItem, QScrollArea, QPushButton
+from PyQt6.QtCore import Qt, QSize
+from PyQt6.QtGui import QIcon
+from pages.p_dashboard import PDashboard
 from pages.p_concentration import PConcentration
-from widgets.wg_button import WgButton
 from windows.w_settings_dialog import WSettingsDialog
 
 class WMain(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Main")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1000, 700)
 
         # Centrar la ventana
         self.center()
+
+        # Establecer el modo claro
+        self.set_light_mode()
 
         # Layout principal con un aside izquierdo y el contenido central
         main_layout = QHBoxLayout()
@@ -21,14 +24,16 @@ class WMain(QMainWindow):
         self.left_sidebar = self.create_left_sidebar()
         main_layout.addWidget(self.left_sidebar)
 
+        # Crear un área de desplazamiento para la página de estadísticas
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+
         # Crear el widget central que mostrará las estadísticas
         self.central_widget = QStackedWidget()
-        self.page_statistics = PStatistics(self)
-        self.central_widget.addWidget(self.page_statistics)
-        self.central_widget.setCurrentWidget(self.page_statistics)
-
-        # Aplicar estilo en blanco y negro
-        self.central_widget.setStyleSheet("background-color: white; color: black;")
+        self.page_statistics = PDashboard(self)
+        scroll_area.setWidget(self.page_statistics)  # Añadir el dashboard al scroll
+        self.central_widget.addWidget(scroll_area)
+        self.central_widget.setCurrentWidget(scroll_area)
 
         main_layout.addWidget(self.central_widget)
 
@@ -36,6 +41,16 @@ class WMain(QMainWindow):
         container = QWidget()
         container.setLayout(main_layout)
         self.setCentralWidget(container)
+
+        # Crear la capa de fondo (overlay) para oscurecer cuando se abren los ajustes
+        self.overlay = QWidget(self)
+        self.overlay.setStyleSheet("background-color: rgba(0, 0, 0, 128);")  # Semitransparente
+        self.overlay.setGeometry(self.rect())
+        self.overlay.setVisible(False)  # Ocultar por defecto
+
+    def set_light_mode(self):
+        """Establece el esquema de colores del modo claro."""
+        self.setStyleSheet("background-color: white; color: black;")
 
     def center(self):
         screen_geometry = self.screen().geometry()
@@ -52,8 +67,8 @@ class WMain(QMainWindow):
         monk_mode_label = QLabel("Monk\nMode")
         monk_mode_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         monk_mode_label.setStyleSheet("font-size: 48px; font-weight: bold; color: black;")
-        monk_mode_label.setWordWrap(True)
         sidebar_layout.addWidget(monk_mode_label)
+        sidebar_layout.addItem(QSpacerItem(10, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
 
         # Página de concentración
         self.page_concentration = PConcentration(self)
@@ -62,27 +77,46 @@ class WMain(QMainWindow):
         # Espaciador
         sidebar_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
 
-        # Botón de ajustes (verde de WgButton)
-        settings_button = WgButton("Ajustes")
+        # Crear un layout para el botón de ajustes y alinearlo a la derecha
+        settings_layout = QHBoxLayout()
+        settings_button = QPushButton()  # Usaremos un QPushButton para el SVG
+        settings_icon = QIcon("assets/settings.svg")  # Ruta al archivo SVG
+        settings_button.setIcon(settings_icon)
+        settings_button.setIconSize(QSize(32, 32))  # Ajusta el tamaño del ícono
+        settings_button.setCursor(Qt.CursorShape.PointingHandCursor)  # Establecer el cursor a la mano
+
+        # Cambia el estilo para asegurarte de que sea interactivo
+        settings_button.setStyleSheet("background-color: transparent; border: none; cursor: pointer;")  # Sin fondo ni borde y cursor
+
+        # Configura la acción del botón
         settings_button.clicked.connect(self.show_settings_dialog)
-        sidebar_layout.addWidget(settings_button)
+
+        # Agregar el botón de ajustes al layout y agregar espaciador para alineación
+        settings_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum))
+        settings_layout.addWidget(settings_button)
+
+        # Agregar el layout de ajustes al layout principal
+        sidebar_layout.addLayout(settings_layout)
 
         left_sidebar.setLayout(sidebar_layout)
-        left_sidebar.setMinimumWidth(100)
-        left_sidebar.setMaximumWidth(200)
+        left_sidebar.setMinimumWidth(300)
+        left_sidebar.setMaximumWidth(300)
         left_sidebar.setStyleSheet("background-color: white;")
 
         return left_sidebar
 
     def show_settings_dialog(self):
+        # Mostrar la capa oscura
+        self.overlay.setVisible(True)
+
         dialog = WSettingsDialog(self)
+
+        # Ocultar la capa oscura cuando el diálogo se cierra
+        dialog.finished.connect(lambda: self.overlay.setVisible(False))
+
         dialog.exec()
-    def apply_background_overlay(main_window, enabled=True):
-        if enabled:
-            # Crear un efecto de opacidad para oscurecer el fondo
-            opacity_effect = QGraphicsOpacityEffect()
-            opacity_effect.setOpacity(0.5)  # Ajusta la opacidad al 50%
-            main_window.setGraphicsEffect(opacity_effect)
-        else:
-            # Elimina el efecto
-            main_window.setGraphicsEffect(None)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        # Ajusta el overlay al tamaño de la ventana principal
+        self.overlay.setGeometry(self.rect())

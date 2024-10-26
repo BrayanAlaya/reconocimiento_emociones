@@ -1,38 +1,11 @@
 {
-    "block": [],
-    "name": "Usuario",
+    "name": "Erick",
+    "password": "12341234",
+    "block": [
+        "Discord.exe"
+    ],
     "activities": [
-        {
-            "id": "3abf0746-68b8-49c5-a699-6806e8b7ee32",
-            "name": "Matematicas"
-        },
-        {
-            "id": "003e6a23-5446-426a-b320-344250998c04",
-            "name": "Lenguaje"
-        },
-        {
-            "id": "3abf0746-68b8-49c5-a699-6806e8b7ee32",
-            "name": "Matematicas",
-            "start": "2:00pm",
-            "end": "3:00pm",
-            "duration": 1,
-            "date": "xx-xx-xxxx"
-        },
-        {
-            "id": "3abf0746-68b8-49c5-a699-6806e8b7ee32",
-            "name": "Matematicas",
-            "start": "2:00pm",
-            "end": "3:00pm",
-            "duration": 1,
-            "date": "xx-xx-xxxx"
-        },
-        {
-            "id": "3abf0746-68b8-49c5-a699-6806e8b7ee32",
-            "name": "Matematicas",
-            "start": "2:00pm",
-            "end": "3:00pm",
-            "duration": 1,
-            "date": "xx-xx-xxxx"
-        }
+        "Computaci\u00f3n",
+        "F\u00edsica"
     ]
 }

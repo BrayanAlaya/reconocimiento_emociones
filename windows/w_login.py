@@ -1,7 +1,7 @@
 import json
 import os
 from PyQt6.QtWidgets import QMainWindow, QLabel, QVBoxLayout, QHBoxLayout, QLineEdit, QWidget, QApplication
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QPalette, QColor
 from PyQt6.QtCore import Qt
 from widgets.wg_button import WgButton
 from windows.w_main import WMain  # Importar MainWindow
@@ -12,6 +12,9 @@ class WLogin(QMainWindow):
         self.setWindowTitle("Login")
         self.setFixedSize(600, 400)
         self.center_window()
+
+        # Establecer el modo claro
+        self.set_light_mode()
 
         # Crear layout principal
         main_layout = QHBoxLayout()
@@ -31,7 +34,7 @@ class WLogin(QMainWindow):
         # Cargar datos de usuario y mostrar la interfaz correspondiente
         self.user_data = self.load_user()
 
-        if self.user_data:
+        if self.user_data and 'name' in self.user_data:
             self.right_column.addWidget(self.create_login_interface())
         else:
             self.right_column.addWidget(self.create_account_interface())
@@ -43,6 +46,13 @@ class WLogin(QMainWindow):
         container = QWidget()
         container.setLayout(main_layout)
         self.setCentralWidget(container)
+
+    def set_light_mode(self):
+        """Establece el esquema de colores del modo claro."""
+        palette = QPalette()
+        palette.setColor(QPalette.ColorRole.Window, QColor(255, 255, 255))  # Color de fondo blanco
+        palette.setColor(QPalette.ColorRole.WindowText, QColor(0, 0, 0))  # Color de texto negro
+        self.setPalette(palette)
 
     def create_login_interface(self):
         # Mensaje de bienvenida
@@ -91,10 +101,25 @@ class WLogin(QMainWindow):
         if os.path.exists(path):
             try:
                 with open(path, 'r') as file:
-                    return json.load(file)
+                    data = json.load(file)
+                    print("Datos de usuario cargados:", data)  # Verificar el contenido
+                    return data
+            except json.JSONDecodeError:
+                print("Error: Formato JSON no válido.")
             except Exception as e:
                 print(f"Error al cargar el archivo: {e}")
+        else:
+            self.create_default_user(path)  # Crear usuario por defecto si no existe
         return None
+
+    def create_default_user(self, path):
+        """Crea un archivo JSON por defecto."""
+        default_user_data = {
+            "name": "",  # Inicialmente vacío
+            "password": ""  # Inicialmente vacío
+        }
+        with open(path, 'w') as file:
+            json.dump(default_user_data, file, indent=4)
 
     def save_user(self, username, password):
         user_data = {"name": username, "password": password}  # Asegúrate de usar el campo 'name'
@@ -111,15 +136,12 @@ class WLogin(QMainWindow):
         self.move(x, y)
 
     def on_login(self):
-        if self.user_data:
-            try:
-                self.main_window = WMain()  # Inicializar la ventana principal
-                self.main_window.show()
-                self.close()  # Cerrar la ventana de inicio de sesión
-            except Exception as e:
-                print(f"Error al iniciar la ventana principal: {e}")
+        if self.user_data and isinstance(self.user_data, dict):
+            self.main_window = WMain()  # Asegúrate de que esta línea no tenga problemas
+            self.main_window.show()
+            self.close()
         else:
-            print("No hay usuario registrado.")
+            print("No hay usuario registrado o los datos son incorrectos.")
 
     def on_register(self):
         username = self.username_input.text()
@@ -140,5 +162,3 @@ class WLogin(QMainWindow):
                 print("Error: No se pudieron cargar los datos del usuario después de registrarse.")
         else:
             print("Por favor, completa todos los campos.")
-
-
