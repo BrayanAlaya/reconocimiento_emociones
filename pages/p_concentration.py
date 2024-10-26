@@ -8,6 +8,7 @@ from datetime import datetime
 from unidecode import unidecode
 import os
 import psutil
+from services.FaceEmotionVideo import EmotionDetector
 
 class PConcentration(QWidget):
     def __init__(self, parent=None):
@@ -92,23 +93,26 @@ class PConcentration(QWidget):
         if self.activity_running:
             return
 
-        self.enforce_blocking()  # Bloquear aplicaciones al iniciar la actividad
+        # self.enforce_blocking()  # Bloquear aplicaciones al iniciar la actividad
 
-        activity_name = unidecode(self.activity_combo.currentText().strip().lower())
-        time = self.time_spinner.value()
+        # activity_name = unidecode(self.activity_combo.currentText().strip().lower())
+        # time = self.time_spinner.value()
 
-        self.total_seconds = time * 60
-        self.remaining_seconds = self.total_seconds
-        self.start_time = datetime.now()
-        self.timer_window = WgTimer(self.total_seconds, activity_name)
-        self.timer_window.show()
+        # self.total_seconds = time * 60
+        # self.remaining_seconds = self.total_seconds
+        # self.start_time = datetime.now()
+        # self.timer_window = WgTimer(self.total_seconds, activity_name)
+        # self.timer_window.show()
 
-        self.activity_running = True
-        self.confirm_button.setEnabled(False)
+        # self.activity_running = True
+        # self.confirm_button.setEnabled(False)
 
-        self.timer_window.timer.timeout.connect(self.update_progress)
-        self.timer_window.timer.start(1000)
-        self.progress_circle.update_timer_label(self.remaining_seconds)
+        # self.timer_window.timer.timeout.connect(self.update_progress)
+        # self.timer_window.timer.start(1000)
+        # self.progress_circle.update_timer_label(self.remaining_seconds)
+
+        self.RecoFacial = EmotionDetector()
+        self.RecoFacial.start_detection()
 
     def update_progress(self):
         """Actualizar el progreso del temporizador y el círculo de progreso."""
