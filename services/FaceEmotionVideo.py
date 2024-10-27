@@ -1,6 +1,8 @@
-from tensorflow.keras.applications.imagenet_utils import preprocess_input
-from tensorflow.keras.preprocessing.image import img_to_array
-from tensorflow.keras.models import load_model
+# from tensorflow.keras.applications.imagenet_utils import preprocess_input
+# from tensorflow.keras.preprocessing.image import img_to_array
+# from tensorflow.keras.models import load_model
+
+import tensorflow as tf
 
 import numpy as np
 import imutils
@@ -16,7 +18,7 @@ class EmotionDetector:
         self.time_actualframe = 0
         self.time_prevframe = 0
         self.faceNet = cv2.dnn.readNet(prototxtPath, weightsPath)
-        self.emotionModel = load_model(emotion_model_path)
+        self.emotionModel = tf.keras.models.load_model(emotion_model_path)
         self.cam = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         
         
@@ -57,7 +59,7 @@ class EmotionDetector:
                 face = frame[Yi:Yf, Xi:Xf]
                 face = cv2.cvtColor(face, cv2.COLOR_BGR2GRAY)
                 face = cv2.resize(face, (48, 48))
-                face2 = img_to_array(face)
+                face2 =  tf.keras.utils.img_to_array(face)
                 face2 = np.expand_dims(face2,axis=0)
 
                 # Se agrega los rostros y las localizaciones a las listas

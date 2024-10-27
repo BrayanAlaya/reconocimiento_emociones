@@ -1,7 +1,7 @@
 import json
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
 from PyQt6.QtCore import Qt
-# from utils.chart_renderer import ChartRenderer  # Asegúrate de que la ruta sea correcta
+from utils.chart_renderer import ChartRenderer  # Asegúrate de que la ruta sea correcta
 
 class PDashboard(QWidget):
     def __init__(self, parent):
@@ -47,10 +47,10 @@ class PDashboard(QWidget):
             self.content_layout.addWidget(theme_label)
 
             # Crear y renderizar el ChartRenderer para cada actividad
-            # renderer = ChartRenderer(activity)  # Utiliza el nombre de la actividad
-            # renderer.setMinimumHeight(300)  # Altura mínima para gráficos más grandes
-            # renderer.setStyleSheet("background-color: rgba(255, 255, 255, 0.9);")  # Fondo blanco más opaco para los gráficos
-            # self.content_layout.addWidget(renderer)
+            renderer = ChartRenderer(activity)  # Utiliza el nombre de la actividad
+            renderer.setMinimumHeight(300)  # Altura mínima para gráficos más grandes
+            renderer.setStyleSheet("background-color: rgba(255, 255, 255, 0.9);")  # Fondo blanco más opaco para los gráficos
+            self.content_layout.addWidget(renderer)
 
             # Renderizar los datos del gráfico
-            # renderer.render_chart()
+            renderer.render_chart()
