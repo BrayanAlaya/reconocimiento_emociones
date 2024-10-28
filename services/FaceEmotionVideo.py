@@ -1,7 +1,3 @@
-# from tensorflow.keras.applications.imagenet_utils import preprocess_input
-# from tensorflow.keras.preprocessing.image import img_to_array
-# from tensorflow.keras.models import load_model
-
 import tensorflow as tf
 
 import numpy as np
@@ -21,7 +17,10 @@ class EmotionDetector:
         self.emotionModel = tf.keras.models.load_model(emotion_model_path)
         self.cam = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         
-        
+        self.angry = 0
+        self.happy = 0
+        self.sad = 0
+        self.surprise = 0
         
         
 
@@ -89,7 +88,16 @@ class EmotionDetector:
                 (Xi, Yi, Xf, Yf) = box
                 (angry,disgust,fear,happy,neutral,sad,surprise) = pred
 
-
+                
+                if angry == max(angry,happy,sad,surprise):
+                    self.angry += 1 
+                if happy == max(angry,happy,sad,surprise):
+                    self.happy += 1 
+                if sad == max(angry,happy,sad,surprise):
+                    self.sad += 1 
+                if surprise == max(angry,happy,sad,surprise):
+                    self.surprise += 1 
+                
                 label = ''
                 # Se agrega la probabilidad en el label de la imagen
                 label = "{}: {:.0f}%".format(self.classes[np.argmax(pred)], max(angry,disgust,fear,happy,neutral,sad,surprise) * 100)
@@ -112,5 +120,14 @@ class EmotionDetector:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
+        total = self.angry + self.happy + self.sad + self.surprise
+
+        print("Enojado: ", int((self.angry * 100)/total),"%")
+        print("Feliz: ",int((self.happy * 100)/total),"%")
+        print("Triste: ", int((self.sad * 100)/total),"%")
+        print("Sorprendido: ", int((self.surprise * 100)/total),"%")
+        
         cv2.destroyAllWindows()
         self.cam.release()
+        
+        
