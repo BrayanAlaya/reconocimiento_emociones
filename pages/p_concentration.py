@@ -14,7 +14,7 @@ class PConcentration(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout()
-        self.RecoFacial = EmotionDetector()
+        self.RecoFacial = EmotionDetector
 
         # Inicializar variables
         self.remaining_seconds = 0  
@@ -95,7 +95,7 @@ class PConcentration(QWidget):
     def confirm_activity(self):
         if self.activity_running:
             return
-
+        self.RecoFacial = EmotionDetector()
         self.enforce_blocking()  # Bloquear aplicaciones al iniciar la actividad
 
         activity_name = unidecode(self.activity_combo.currentText().strip().lower())

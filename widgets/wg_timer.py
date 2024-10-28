@@ -1,6 +1,8 @@
 from PyQt6.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt6.QtCore import Qt, QTimer
 from PyQt6.QtGui import QFont 
+import json
+from datetime import datetime
 
 class WgTimer(QWidget):
     def __init__(self, total_seconds, activity, position="Arriba Izquierda"):
@@ -65,5 +67,27 @@ class WgTimer(QWidget):
 
     def finish_timer(self):
         self.time_label.setText("¡Terminado!")
-        self.timer.stop()  # Detener el temporizador
-        QTimer.singleShot(2000, self.close)  # Cerrar la ventana después de 2 segundos
+        self.timer.stop()
+
+        try:
+            with open("data/history/computacion.json", "r") as file:
+                data = json.load(file)
+
+            # Obtener la fecha actual
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            if current_date in data:
+                emotions = data[current_date]["emotions"]
+
+                # Verificar el nivel de enojo
+                if emotions.get("angry", 0) > 70:
+                    warning_label = QLabel("Debe controlar sus emociones para un mejor rendimiento")
+                    warning_label.setFont(QFont("Arial", 10))
+                    warning_label.setStyleSheet("color: red;")
+                    warning_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                    self.layout().addWidget(warning_label)
+
+        except FileNotFoundError:
+            print("Error: archivo JSON no encontrado.")
+
+        QTimer.singleShot(2000, self.close)
+

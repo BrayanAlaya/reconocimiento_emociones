@@ -79,7 +79,7 @@ class EmotionDetector:
         self.closeBool = False
         while True:
             # Se toma un frame de la cámara y se redimensiona
-            print(self.cam)
+            
             ret, frame = self.cam.read()
             if frame is None:
                 self.cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
@@ -159,12 +159,21 @@ class EmotionDetector:
 
             total = self.angry + self.happy + self.sad + self.surprise
 
+            angryP = 0
+            happyp = 0
+            sadP = 0
+
+            if total > 0:
+                angryP = round((self.angry * 100)/total,1) 
+                happyp = round((self.happy * 100)/total,1) 
+                sadP = round((self.sad * 100)/total,1) 
+
             activity_data[today_date] = {
                 "duration": new_duration,
                 "emotions": {
-                    "angry": int((self.angry * 100)/total),
-                    "happy": int((self.happy * 100)/total),  # Valores de ejemplo, puedes reemplazarlos
-                    "sad": int((self.sad * 100)/total),
+                    "angry": angryP,
+                    "happy":happyp ,
+                    "sad": sadP,
                 }
             }
 
