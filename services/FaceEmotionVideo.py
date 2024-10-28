@@ -20,6 +20,8 @@ class EmotionDetector:
         self.emotionModel = tf.keras.models.load_model(emotion_model_path)
         self.cam = cv2.VideoCapture(0,cv2.CAP_DSHOW)
         
+        self.closeBool = False
+        
         self.angry = 0
         self.happy = 0
         self.sad = 0
@@ -74,9 +76,15 @@ class EmotionDetector:
         return (locs,preds)
 
     def start_detection(self):
+        self.closeBool = False
         while True:
             # Se toma un frame de la cámara y se redimensiona
+            print(self.cam)
             ret, frame = self.cam.read()
+            if frame is None:
+                self.cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+                ret, frame = self.cam.read()
+            
             frame = imutils.resize(frame, width=640)
 
             if frame is None or frame.size == 0:
@@ -117,15 +125,16 @@ class EmotionDetector:
             
             self.time_prevframe = self.time_actualframe
 
-            cv2.putText(frame, str(int(fps))+" FPS", (5, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 3, cv2.LINE_AA)
-
             cv2.imshow("Frame", frame)
-            if cv2.waitKey(1) & 0xFF == ord('q'):
+            if cv2.waitKey(1) & 0xFF == ord('q') or self.closeBool == True: 
                 break
 
         cv2.destroyAllWindows()
         self.cam.release()
         
+    def close(self):
+        self.closeBool = True
+    
     def update_activity_json(self, elapsed_time, activityName):
         """Actualizar el archivo JSON con los datos de la actividad completada."""
         activity_name = unidecode(activityName)

@@ -1,9 +1,7 @@
 {
     "name": "Erick",
     "password": "12341234",
-    "block": [
-        "Discord.exe"
-    ],
+    "block": [],
     "activities": [
         "Computaci\u00f3n",
         "F\u00edsica"
