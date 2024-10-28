@@ -14,6 +14,7 @@ class PConcentration(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         layout = QVBoxLayout()
+        self.RecoFacial = EmotionDetector()
 
         # Inicializar variables
         self.remaining_seconds = 0  
@@ -111,7 +112,6 @@ class PConcentration(QWidget):
         self.timer_window.timer.start(1000)
         self.progress_circle.update_timer_label(self.remaining_seconds)
 
-        self.RecoFacial = EmotionDetector()
         self.RecoFacial.start_detection()
 
     def update_progress(self):
@@ -127,50 +127,14 @@ class PConcentration(QWidget):
         """Manejar la finalización de la actividad y desbloquear aplicaciones."""
         self.progress_circle.set_progress(100)
         self.progress_circle.update_timer_label(0)
-        self.update_activity_json(elapsed_time)
+        self.RecoFacial.update_activity_json(elapsed_time,self.activity_combo.currentText().strip().lower())
 
         self.release_blocking()  # Desbloquear aplicaciones al finalizar la actividad
 
         self.activity_running = False
         self.confirm_button.setEnabled(True)
 
-    def update_activity_json(self, elapsed_time):
-        """Actualizar el archivo JSON con los datos de la actividad completada."""
-        activity_name = unidecode(self.activity_combo.currentText().strip().lower())
-        duration = elapsed_time // 60
-        today_date = datetime.now().strftime('%Y-%m-%d')
-
-        activity_file = os.path.join('data', 'history', f"{activity_name}.json")
-
-        try:
-            if os.path.exists(activity_file):
-                with open(activity_file, 'r') as file:
-                    activity_data = json.load(file)
-            else:
-                activity_data = {}
-
-            # Si la actividad de hoy ya existe, sumar la duración
-            if today_date in activity_data:
-                previous_duration = activity_data[today_date].get("duration", 0)
-                new_duration = previous_duration + duration
-            else:
-                new_duration = duration
-
-            activity_data[today_date] = {
-                "duration": new_duration,
-                "emotions": {
-                    "happy": 80,  # Valores de ejemplo, puedes reemplazarlos
-                    "neutral": 70,
-                    "stressed": 90
-                }
-            }
-
-            with open(activity_file, 'w') as file:
-                json.dump(activity_data, file, indent=4)
-
-        except (FileNotFoundError, json.JSONDecodeError):
-            print("Error al actualizar el archivo de actividad.")
-
+   
     def enforce_blocking(self):
         """Bloquear aplicaciones al iniciar la actividad."""
         # Aquí puedes definir la lógica para bloquear aplicaciones según tus necesidades

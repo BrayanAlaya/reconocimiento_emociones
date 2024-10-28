@@ -210,9 +210,9 @@
     "2024-10-27": {
         "duration": 90,
         "emotions": {
-            "happy": 80,
-            "neutral": 70,
-            "stressed": 90
+            "angry": 88,
+            "happy": 0,
+            "sad": 11
         }
     },
     "2024-10-28": {

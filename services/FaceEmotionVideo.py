@@ -1,5 +1,8 @@
 import tensorflow as tf
-
+import json
+from datetime import datetime
+from unidecode import unidecode
+import os
 import numpy as np
 import imutils
 import cv2
@@ -89,13 +92,13 @@ class EmotionDetector:
                 (angry,disgust,fear,happy,neutral,sad,surprise) = pred
 
                 
-                if angry == max(angry,happy,sad,surprise):
+                if angry == max(angry,disgust,fear,happy,neutral,sad,surprise) or neutral == max(angry,disgust,fear,happy,neutral,sad,surprise):
                     self.angry += 1 
-                if happy == max(angry,happy,sad,surprise):
+                if happy == max(angry,disgust,fear,happy,neutral,sad,surprise):
                     self.happy += 1 
-                if sad == max(angry,happy,sad,surprise):
+                if sad == max(angry,disgust,fear,happy,neutral,sad,surprise) or disgust == max(angry,disgust,fear,happy,neutral,sad,surprise):
                     self.sad += 1 
-                if surprise == max(angry,happy,sad,surprise):
+                if surprise == max(angry,disgust,fear,happy,neutral,sad,surprise) or fear == max(angry,disgust,fear,happy,neutral,sad,surprise):
                     self.surprise += 1 
                 
                 label = ''
@@ -120,14 +123,44 @@ class EmotionDetector:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        total = self.angry + self.happy + self.sad + self.surprise
-
-        print("Enojado: ", int((self.angry * 100)/total),"%")
-        print("Feliz: ",int((self.happy * 100)/total),"%")
-        print("Triste: ", int((self.sad * 100)/total),"%")
-        print("Sorprendido: ", int((self.surprise * 100)/total),"%")
-        
         cv2.destroyAllWindows()
         self.cam.release()
         
-        
+    def update_activity_json(self, elapsed_time, activityName):
+        """Actualizar el archivo JSON con los datos de la actividad completada."""
+        activity_name = unidecode(activityName)
+        duration = elapsed_time // 60
+        today_date = datetime.now().strftime('%Y-%m-%d')
+
+        activity_file = os.path.join('data', 'history', f"{activity_name}.json")
+
+        try:
+            if os.path.exists(activity_file):
+                with open(activity_file, 'r') as file:
+                    activity_data = json.load(file)
+            else:
+                activity_data = {}
+
+            # Si la actividad de hoy ya existe, sumar la duración
+            if today_date in activity_data:
+                previous_duration = activity_data[today_date].get("duration", 0)
+                new_duration = previous_duration + duration
+            else:
+                new_duration = duration
+
+            total = self.angry + self.happy + self.sad + self.surprise
+
+            activity_data[today_date] = {
+                "duration": new_duration,
+                "emotions": {
+                    "angry": int((self.angry * 100)/total),
+                    "happy": int((self.happy * 100)/total),  # Valores de ejemplo, puedes reemplazarlos
+                    "sad": int((self.sad * 100)/total),
+                }
+            }
+
+            with open(activity_file, 'w') as file:
+                json.dump(activity_data, file, indent=4)
+
+        except (FileNotFoundError, json.JSONDecodeError):
+            print("Error al actualizar el archivo de actividad.")
