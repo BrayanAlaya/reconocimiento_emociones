@@ -6,7 +6,9 @@ import os
 import numpy as np
 import imutils
 import cv2
-import time
+import time 
+
+
 
 class EmotionDetector:
     def __init__(self):
@@ -134,6 +136,7 @@ class EmotionDetector:
         
     def close(self):
         self.closeBool = True
+        
     
     def update_activity_json(self, elapsed_time, activityName):
         """Actualizar el archivo JSON con los datos de la actividad completada."""
@@ -154,28 +157,27 @@ class EmotionDetector:
             if today_date in activity_data:
                 previous_duration = activity_data[today_date].get("duration", 0)
                 new_duration = previous_duration + duration
-            else:
-                new_duration = duration
-
-            total = self.angry + self.happy + self.sad + self.surprise
-
-            angryP = 0
-            happyp = 0
-            sadP = 0
-
-            if total > 0:
-                angryP = round((self.angry * 100)/total,1) 
-                happyp = round((self.happy * 100)/total,1) 
-                sadP = round((self.sad * 100)/total,1) 
-
-            activity_data[today_date] = {
+                
+                activity_data[today_date] = {
                 "duration": new_duration,
                 "emotions": {
-                    "angry": angryP,
-                    "happy":happyp ,
-                    "sad": sadP,
+                    "angry": activity_data[today_date]["emotions"]["angry"] + self.angry,
+                    "happy":activity_data[today_date]["emotions"]["happy"] + self.happy,
+                    "sad": activity_data[today_date]["emotions"]["sad"] + self.sad,
                 }
             }
+            else:
+                new_duration = duration
+                activity_data[today_date] = {
+                "duration": new_duration,
+                "emotions": {
+                    "angry": self.angry,
+                    "happy": self.happy,
+                    "sad": self.sad,
+                    }
+                }
+          
+            
 
             with open(activity_file, 'w') as file:
                 json.dump(activity_data, file, indent=4)

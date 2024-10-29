@@ -58,12 +58,20 @@ class ChartRenderer(QWidget):
                 valid_dates.append(date)
                 emotion_data = entry.get("emotions", {})
 
-                # Calculate the total for percentages
-                total_emotions = sum(emotion_data.values())
-                emotion_str = ', '.join(
-                    [f"{emotion}: {value / total_emotions * 100:.1f}%" for emotion, value in emotion_data.items()]
-                )
-                emotions.append(emotion_str if emotion_str else "Sin emoción")
+                total = emotion_data["happy"] + emotion_data["angry"] + emotion_data["sad"]
+
+                angryP = 0
+                happyp = 0
+                sadP = 0
+
+                if total > 0:
+                    angryP = round((emotion_data["angry"] * 100)/total,1) 
+                    happyp = round((emotion_data["happy"] * 100)/total,1) 
+                    sadP = round((emotion_data["sad"] * 100)/total,1) 
+
+                emo = f"Happy: {happyp}%  -  Angry: {angryP}%  -  Sad: {sadP}%"
+
+                emotions.append(emo)
             else:
                 print(f"Advertencia: El formato de los datos para la fecha '{date}' es incorrecto: {entry}")
 

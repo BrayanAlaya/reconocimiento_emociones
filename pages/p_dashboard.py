@@ -4,7 +4,7 @@ from PyQt6.QtCore import Qt
 from utils.chart_renderer import ChartRenderer  # Asegúrate de que la ruta sea correcta
 
 class PDashboard(QWidget):
-    def __init__(self, parent):
+    def __init__(self, parent ):
         super().__init__(parent)
         self.load_user_data()  # Cargar los datos del usuario
         self.setup_ui()
@@ -40,7 +40,9 @@ class PDashboard(QWidget):
 
     def load_charts(self):
         """Cargar y mostrar gráficos para cada actividad en un layout desplazable."""
+        
         for activity in self.activities:
+            
             # Etiqueta de cada sección temática
             theme_label = QLabel(f"Gráficos para {activity}")
             theme_label.setStyleSheet("font-size: 16px; font-weight: bold; margin-bottom: 5px;")

@@ -3,216 +3,216 @@
         "duration": 40,
         "emotions": {
             "happy": 60,
-            "neutral": 50,
-            "stressed": 20
+            "angry": 50,
+            "sad": 20
         }
     },
     "2024-10-02": {
         "duration": 50,
         "emotions": {
             "happy": 65,
-            "neutral": 55,
-            "stressed": 25
+            "angry": 55,
+            "sad": 25
         }
     },
     "2024-10-03": {
         "duration": 35,
         "emotions": {
             "happy": 70,
-            "neutral": 60,
-            "stressed": 30
+            "angry": 60,
+            "sad": 30
         }
     },
     "2024-10-04": {
         "duration": 55,
         "emotions": {
             "happy": 75,
-            "neutral": 65,
-            "stressed": 35
+            "angry": 65,
+            "sad": 35
         }
     },
     "2024-10-05": {
         "duration": 30,
         "emotions": {
             "happy": 60,
-            "neutral": 70,
-            "stressed": 40
+            "angry": 70,
+            "sad": 40
         }
     },
     "2024-10-06": {
         "duration": 60,
         "emotions": {
             "happy": 85,
-            "neutral": 60,
-            "stressed": 25
+            "angry": 60,
+            "sad": 25
         }
     },
     "2024-10-07": {
         "duration": 45,
         "emotions": {
             "happy": 70,
-            "neutral": 55,
-            "stressed": 15
+            "angry": 55,
+            "sad": 15
         }
     },
     "2024-10-08": {
         "duration": 20,
         "emotions": {
             "happy": 50,
-            "neutral": 40,
-            "stressed": 60
+            "angry": 40,
+            "sad": 60
         }
     },
     "2024-10-09": {
         "duration": 75,
         "emotions": {
             "happy": 80,
-            "neutral": 50,
-            "stressed": 20
+            "angry": 50,
+            "sad": 20
         }
     },
     "2024-10-10": {
         "duration": 50,
         "emotions": {
             "happy": 65,
-            "neutral": 60,
-            "stressed": 25
+            "angry": 60,
+            "sad": 25
         }
     },
     "2024-10-11": {
         "duration": 90,
         "emotions": {
             "happy": 75,
-            "neutral": 65,
-            "stressed": 35
+            "angry": 65,
+            "sad": 35
         }
     },
     "2024-10-12": {
         "duration": 40,
         "emotions": {
             "happy": 55,
-            "neutral": 45,
-            "stressed": 30
+            "angry": 45,
+            "sad": 30
         }
     },
     "2024-10-13": {
         "duration": 25,
         "emotions": {
             "happy": 60,
-            "neutral": 50,
-            "stressed": 20
+            "angry": 50,
+            "sad": 20
         }
     },
     "2024-10-14": {
         "duration": 65,
         "emotions": {
             "happy": 70,
-            "neutral": 55,
-            "stressed": 30
+            "angry": 55,
+            "sad": 30
         }
     },
     "2024-10-15": {
         "duration": 80,
         "emotions": {
             "happy": 85,
-            "neutral": 70,
-            "stressed": 10
+            "angry": 70,
+            "sad": 10
         }
     },
     "2024-10-16": {
         "duration": 55,
         "emotions": {
             "happy": 75,
-            "neutral": 65,
-            "stressed": 35
+            "angry": 65,
+            "sad": 35
         }
     },
     "2024-10-17": {
         "duration": 60,
         "emotions": {
             "happy": 65,
-            "neutral": 60,
-            "stressed": 40
+            "angry": 60,
+            "sad": 40
         }
     },
     "2024-10-18": {
         "duration": 45,
         "emotions": {
             "happy": 70,
-            "neutral": 50,
-            "stressed": 25
+            "angry": 50,
+            "sad": 25
         }
     },
     "2024-10-19": {
         "duration": 50,
         "emotions": {
             "happy": 80,
-            "neutral": 65,
-            "stressed": 15
+            "angry": 65,
+            "sad": 15
         }
     },
     "2024-10-20": {
         "duration": 90,
         "emotions": {
             "happy": 90,
-            "neutral": 75,
-            "stressed": 30
+            "angry": 75,
+            "sad": 30
         }
     },
     "2024-10-21": {
         "duration": 35,
         "emotions": {
             "happy": 60,
-            "neutral": 55,
-            "stressed": 20
+            "angry": 55,
+            "sad": 20
         }
     },
     "2024-10-22": {
         "duration": 70,
         "emotions": {
             "happy": 85,
-            "neutral": 60,
-            "stressed": 25
+            "angry": 60,
+            "sad": 25
         }
     },
     "2024-10-23": {
         "duration": 40,
         "emotions": {
             "happy": 65,
-            "neutral": 50,
-            "stressed": 35
+            "angry": 50,
+            "sad": 35
         }
     },
     "2024-10-24": {
         "duration": 30,
         "emotions": {
             "happy": 55,
-            "neutral": 45,
-            "stressed": 40
+            "angry": 45,
+            "sad": 40
         }
     },
     "2024-10-25": {
         "duration": 61,
         "emotions": {
             "happy": 80,
-            "neutral": 70,
-            "stressed": 90
+            "angry": 70,
+            "sad": 90
         }
     },
     "2024-10-26": {
         "duration": 45,
         "emotions": {
             "happy": 75,
-            "neutral": 60,
-            "stressed": 50
+            "angry": 60,
+            "sad": 50
         }
     },
     "2024-10-27": {
         "duration": 90,
         "emotions": {
             "happy": 85,
-            "neutral": 65,
-            "stressed": 30
+            "angry": 65,
+            "sad": 30
         }
     },
     "2024-10-28": {
@@ -227,24 +227,24 @@
         "duration": 60,
         "emotions": {
             "happy": 70,
-            "neutral": 60,
-            "stressed": 20
+            "angry": 60,
+            "sad": 20
         }
     },
     "2024-10-30": {
         "duration": 55,
         "emotions": {
             "happy": 65,
-            "neutral": 55,
-            "stressed": 25
+            "angry": 55,
+            "sad": 25
         }
     },
     "2024-10-31": {
         "duration": 80,
         "emotions": {
             "happy": 90,
-            "neutral": 70,
-            "stressed": 10
+            "angry": 70,
+            "sad": 10
         }
     }
 }
