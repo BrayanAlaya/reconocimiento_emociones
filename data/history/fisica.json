@@ -246,5 +246,13 @@
             "angry": 70,
             "sad": 10
         }
+    },
+    "2024-11-07": {
+        "duration": 0,
+        "emotions": {
+            "angry": 0,
+            "happy": 0,
+            "sad": 0
+        }
     }
 }

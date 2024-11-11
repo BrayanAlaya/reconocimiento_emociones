@@ -246,5 +246,29 @@
             "angry": 70,
             "sad": 10
         }
+    },
+    "2024-11-03": {
+        "duration": 2,
+        "emotions": {
+            "angry": 382,
+            "happy": 2,
+            "sad": 170
+        }
+    },
+    "2024-11-07": {
+        "duration": 0,
+        "emotions": {
+            "angry": 127,
+            "happy": 58,
+            "sad": 4
+        }
+    },
+    "2024-11-08": {
+        "duration": 3,
+        "emotions": {
+            "angry": 735,
+            "happy": 0,
+            "sad": 79
+        }
     }
 }

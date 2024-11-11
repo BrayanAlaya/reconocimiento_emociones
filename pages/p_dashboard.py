@@ -1,10 +1,10 @@
 import json
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QLabel, QScrollArea, QLayout
 from PyQt6.QtCore import Qt
 from utils.chart_renderer import ChartRenderer  # Asegúrate de que la ruta sea correcta
 
 class PDashboard(QWidget):
-    def __init__(self, parent ):
+    def __init__(self, parent=None ):
         super().__init__(parent)
         self.load_user_data()  # Cargar los datos del usuario
         self.setup_ui()
@@ -56,3 +56,22 @@ class PDashboard(QWidget):
 
             # Renderizar los datos del gráfico
             renderer.render_chart()
+
+    def remove(self, layout=None):
+        """Elimina todos los widgets y el layout en sí."""
+        if layout is None:
+            layout = self.layout()  # Obtiene el layout principal si no se especifica
+
+        if layout is not None and isinstance(layout, QLayout):
+            # Elimina todos los widgets en el layout
+            while layout.count() > 0:
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget is not None:
+                    widget.deleteLater()  # Eliminar el widget
+                elif item.layout():
+                    # Si el item es un layout anidado, elimínalo recursivamente
+                    self.remove_layout(item.layout())
+
+            # Finalmente, elimina el propio layout
+            layout.deleteLater()

@@ -22,7 +22,7 @@ class PConcentration(QWidget):
         self.total_seconds = 0  
         self.start_time = None  
         
-        self.chart = PDashboard
+        self.chart = PDashboard()
 
         # Configurar interfaz
         self.progress_circle = WgCircleProgress()
@@ -90,8 +90,7 @@ class PConcentration(QWidget):
         self.release_blocking()  # Desbloquear aplicaciones al cancelar
 
         self.RecoFacial.close()
-        self.chart = PDashboard(self)
-        self.chart.load_charts()
+        self.chart.remove()
 
         self.progress_circle.set_progress(0)
         self.activity_running = False
@@ -136,8 +135,7 @@ class PConcentration(QWidget):
         self.progress_circle.update_timer_label(0)
         self.RecoFacial.update_activity_json(elapsed_time,self.activity_combo.currentText().strip().lower())
         self.RecoFacial.close()
-        self.chart = PDashboard(self)
-        self.chart.load_charts()
+        self.chart.remove()
         self.release_blocking()  # Desbloquear aplicaciones al finalizar la actividad
 
         self.activity_running = False

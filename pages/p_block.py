@@ -1,10 +1,12 @@
-from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QListWidget, QLineEdit, QListWidgetItem
+from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QListWidget, QLineEdit, QListWidgetItem, QMessageBox
 from PyQt6.QtGui import QFont, QColor
+from PyQt6.QtCore import QTimer, QCoreApplication
 from widgets.wg_button import WgButton
 from utils.json_manager import load_json
 import json
 import os
 import psutil
+import threading
 
 class PBlock(QFrame):
     def __init__(self, parent=None):
@@ -35,6 +37,11 @@ class PBlock(QFrame):
         delete_app_button.clicked.connect(self.delete_app)
         layout.addWidget(delete_app_button)
 
+        # Botón para finalizar la tarea
+        end_concentration_button = WgButton("Finalizar Concentración")
+        end_concentration_button.clicked.connect(self.end_concentration)
+        layout.addWidget(end_concentration_button)
+
         self.setLayout(layout)
 
         # Cargar aplicaciones desde JSON
@@ -42,6 +49,15 @@ class PBlock(QFrame):
 
         # Atributo para verificar si la concentración está activa
         self.concentration_active = False
+        self.enforce_thread = None  # Thread de aplicación de bloqueo
+
+    def closeEvent(self, event):
+        """Evita que el programa se cierre si la concentración está activa."""
+        if self.concentration_active:
+            QMessageBox.warning(self, "Concentración activa", "Finaliza la concentración antes de cerrar.")
+            event.ignore()
+        else:
+            event.accept()  # Permitir el cierre si no está en concentración
 
     def load_executables(self):
         """Carga todos los archivos .exe disponibles en el sistema."""        
@@ -141,25 +157,26 @@ class PBlock(QFrame):
         """Inicia la sesión de concentración."""
         self.concentration_active = True
         self.block_app_button.setEnabled(False)  # Deshabilitar el botón de bloquear
-        self.enforce_blocking()  # Aplicar bloqueo de aplicaciones
+        self.enforce_thread = threading.Thread(target=self.enforce_blocking, daemon=True)
+        self.enforce_thread.start()  # Iniciar el hilo de bloqueo
 
     def end_concentration(self):
         """Finaliza la sesión de concentración."""
         self.concentration_active = False
         self.block_app_button.setEnabled(True)  # Habilitar el botón de bloquear
-        self.release_blocking()  # Liberar bloqueo de aplicaciones
 
     def enforce_blocking(self):
         """Bloquea las aplicaciones seleccionadas mientras la concentración está activa."""
         blocked_apps = self.get_data()
-        for proc in psutil.process_iter(attrs=['pid', 'name']):
-            try:
-                if proc.info['name'] in blocked_apps:
-                    proc.kill()  # Matar el proceso bloqueado
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
-                pass
+        while self.concentration_active:
+            for proc in psutil.process_iter(attrs=['pid', 'name']):
+                try:
+                    if proc.info['name'] in blocked_apps:
+                        proc.kill()  # Matar el proceso bloqueado
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass
+            threading.Event().wait(2)  # Esperar para reducir uso de CPU
 
     def release_blocking(self):
         """Liberar el bloqueo de las aplicaciones."""
-        # Aquí puedes implementar lógica si necesitas realizar alguna acción específica
         pass

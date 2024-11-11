@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QHBoxLayout, QStackedWidget, QFrame, QWidget
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPalette, QColor
 from widgets.wg_button import WgButton  # Usar el botón personalizado
 from pages.p_block import PBlock
 from pages.p_activities import PActivities
@@ -25,14 +24,12 @@ class WSettingsDialog(QDialog):
 
         # Oscurecer la ventana principal
         self.overlay = QWidget(parent)
-        self.overlay.setStyleSheet("""
-            background-color: rgba(0, 0, 0, 100);  # Oscurecer con transparencia
-        """)
+        self.overlay.setStyleSheet("background-color: rgba(0, 0, 0, 100);")  # Oscurecer con transparencia
         self.overlay.show()
         self.update_overlay_geometry()
 
         # Layout principal para el modal
-        layout = QHBoxLayout()
+        layout = QHBoxLayout(self)
 
         # Crear el aside con las opciones "Bloquear", "Actividades", y "Guardar"
         aside = self.create_aside()
@@ -42,19 +39,23 @@ class WSettingsDialog(QDialog):
         self.settings_pages = QStackedWidget()
         layout.addWidget(self.settings_pages)
 
-        # Página de "Bloquear" donde se podrán agregar/borrar apps
-        self.block_page = PBlock(self)
-        self.settings_pages.addWidget(self.block_page)
-
-        # Página de "Actividades"
-        self.activities_page = PActivities(self)
-        self.settings_pages.addWidget(self.activities_page)
+        # Páginas de configuración
+        self.init_settings_pages()
 
         self.setLayout(layout)
 
+    def init_settings_pages(self):
+        """Inicializa las páginas de configuración y las añade al QStackedWidget."""
+        self.block_page = PBlock(self)
+        self.settings_pages.addWidget(self.block_page)
+
+        self.activities_page = PActivities(self)
+        self.settings_pages.addWidget(self.activities_page)
+
     def update_overlay_geometry(self):
         """Actualizar la geometría del overlay para cubrir toda la ventana principal."""
-        self.overlay.setGeometry(self.parent().rect())
+        if self.parent():
+            self.overlay.setGeometry(self.parent().rect())
 
     def showEvent(self, event):
         """Actualizar la geometría del overlay al mostrar el diálogo."""
@@ -67,19 +68,15 @@ class WSettingsDialog(QDialog):
         super().resizeEvent(event)
 
     def closeEvent(self, event):
-        """Sobrescribir el evento de cierre para quitar el overlay"""
+        """Sobrescribir el evento de cierre para quitar el overlay."""
         self.overlay.hide()  # Esconder la capa oscura cuando se cierre la ventana
         super().closeEvent(event)
 
     def create_aside(self):
-        """Crear el menú lateral (aside) con botones y un botón de guardar ajustes"""
+        """Crear el menú lateral (aside) con botones y un botón de guardar ajustes."""
         aside = QFrame()
         aside.setFixedWidth(120)
-        aside.setStyleSheet("""
-            QFrame {
-                background-color: transparent;  /* Sin color de fondo */
-            }
-        """)
+        aside.setStyleSheet("QFrame { background-color: transparent; }")  # Sin color de fondo
 
         aside_layout = QVBoxLayout()
 
@@ -105,12 +102,13 @@ class WSettingsDialog(QDialog):
         return aside
 
     def save_settings(self):
-        """Función para guardar los ajustes en un archivo JSON"""
+        """Función para guardar los ajustes en un archivo JSON."""
         try:
             # Cargar los datos existentes
             existing_data = {}
-            if os.path.exists("data/user.json"):
-                with open("data/user.json", "r") as file:
+            user_file_path = "data/user.json"
+            if os.path.exists(user_file_path):
+                with open(user_file_path, "r") as file:
                     existing_data = json.load(file)
 
             # Obtener los bloqueos actuales del archivo y los cambios en la lista
@@ -129,7 +127,8 @@ class WSettingsDialog(QDialog):
                 "activities": self.activities_page.get_data()
             }
 
-            with open("data/user.json", "w") as file:
+            # Guardar los ajustes en el archivo JSON
+            with open(user_file_path, "w") as file:
                 json.dump(settings_data, file, indent=4)
 
             print("Ajustes guardados correctamente.")

@@ -47,6 +47,7 @@ class WMain(QMainWindow):
         self.overlay.setStyleSheet("background-color: rgba(0, 0, 0, 128);")  # Semitransparente
         self.overlay.setGeometry(self.rect())
         self.overlay.setVisible(False)  # Ocultar por defecto
+        self.overlay.raise_()  # Asegurarse de que el overlay esté encima
 
     def set_light_mode(self):
         """Establece el esquema de colores del modo claro."""
@@ -115,6 +116,7 @@ class WMain(QMainWindow):
         dialog.finished.connect(lambda: self.overlay.setVisible(False))
 
         dialog.exec()
+
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
