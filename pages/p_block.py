@@ -37,11 +37,7 @@ class PBlock(QFrame):
         delete_app_button.clicked.connect(self.delete_app)
         layout.addWidget(delete_app_button)
 
-        # Botón para finalizar la tarea
-        end_concentration_button = WgButton("Finalizar Concentración")
-        end_concentration_button.clicked.connect(self.end_concentration)
-        layout.addWidget(end_concentration_button)
-
+    
         self.setLayout(layout)
 
         # Cargar aplicaciones desde JSON
@@ -159,11 +155,6 @@ class PBlock(QFrame):
         self.block_app_button.setEnabled(False)  # Deshabilitar el botón de bloquear
         self.enforce_thread = threading.Thread(target=self.enforce_blocking, daemon=True)
         self.enforce_thread.start()  # Iniciar el hilo de bloqueo
-
-    def end_concentration(self):
-        """Finaliza la sesión de concentración."""
-        self.concentration_active = False
-        self.block_app_button.setEnabled(True)  # Habilitar el botón de bloquear
 
     def enforce_blocking(self):
         """Bloquea las aplicaciones seleccionadas mientras la concentración está activa."""
