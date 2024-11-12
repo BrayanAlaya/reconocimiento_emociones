@@ -6,6 +6,8 @@ from widgets.wg_button import WgButton
 import json
 from datetime import datetime
 from unidecode import unidecode
+import threading
+import time
 import os
 import psutil
 from services.FaceEmotionVideo import EmotionDetector
@@ -16,7 +18,7 @@ class PConcentration(QWidget):
         super().__init__(parent)
         layout = QVBoxLayout()
         self.RecoFacial = EmotionDetector
-        
+        self.concentration_active = False
         # Inicializar variables
         self.remaining_seconds = 0  
         self.total_seconds = 0  
@@ -141,19 +143,13 @@ class PConcentration(QWidget):
         self.activity_running = False
         self.confirm_button.setEnabled(True)
 
-   
     def enforce_blocking(self):
-        """Bloquear aplicaciones al iniciar la actividad."""
-        # Aquí puedes definir la lógica para bloquear aplicaciones según tus necesidades
-        blocked_apps = self.get_blocked_apps()  # Cargar aplicaciones bloqueadas
-        for app in blocked_apps:
-            self.enforce_app_blocking(app)
-
-    def release_blocking(self):
-        """Desbloquear todas las aplicaciones bloqueadas."""
-        blocked_apps = self.get_blocked_apps()  # Cargar aplicaciones bloqueadas
-        for app in blocked_apps:
-            self.release_app_blocking(app)
+        """Inicia la sesión de concentración."""
+        self.concentration_active = True
+        
+        self.enforce_thread = threading.Thread(target=self.start_blocking, daemon=True)
+        self.enforce_thread.start()
+        # self.enforce_blocking()
 
     def get_blocked_apps(self):
         """Obtener la lista de aplicaciones bloqueadas desde JSON."""
@@ -165,14 +161,35 @@ class PConcentration(QWidget):
             print("Error al cargar las aplicaciones bloqueadas.")
             return []
 
-    def enforce_app_blocking(self, app_name):
-        """Bloquear un proceso de aplicación."""
-        for proc in psutil.process_iter(['name']):
-            if proc.info['name'] == app_name:
-                proc.suspend()
+    def release_blocking(self):
+        self.concentration_active = False
+        
 
-    def release_app_blocking(self, app_name):
-        """Desbloquear un proceso de aplicación."""
-        for proc in psutil.process_iter(['name']):
-            if proc.info['name'] == app_name:
-                proc.resume()
+    def start_blocking(self):
+        """Bloquea de forma persistente las aplicaciones seleccionadas mientras la concentración está activa."""
+        blocked_exe_names = self.get_blocked_apps()  # Obtiene los nombres exactos de .exe bloqueados
+
+        while self.concentration_active:
+            # Revisa los procesos en ejecución
+            for proc in psutil.process_iter(attrs=['pid', 'name']):
+                try:
+                    # Compara el nombre del proceso con la lista de nombres bloqueados
+                    if proc.info['name'] and proc.info['name'].lower() in (name.lower() for name in blocked_exe_names):
+                        print(f"Bloqueando {proc.info['name']} (PID: {proc.info['pid']})")
+                        proc.suspend()  
+                except (psutil.NoSuchProcess, psutil.AccessDenied, KeyError):
+                    # Ignora los procesos que no existen o no se pueden acceder
+                    pass
+        
+            # Espera 5 segundos antes de revisar de nuevo, manteniendo el bloqueo activo
+            time.sleep(2)
+   
+        for proc in psutil.process_iter(attrs=['pid', 'name']):
+            try:
+                # Compara el nombre del proceso con la lista de nombres bloqueados
+                if proc.info['name'] and proc.info['name'].lower() in (name.lower() for name in blocked_exe_names):
+                    print(f"Desbloqueando {proc.info['name']} (PID: {proc.info['pid']})")
+                    proc.kill()  
+            except (psutil.NoSuchProcess, psutil.AccessDenied, KeyError):
+                # Ignora los procesos que no existen o no se pueden acceder
+                pass

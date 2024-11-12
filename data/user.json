@@ -1,7 +1,9 @@
 {
-    "name": "Usuario",
-    "password": "12341234",
-    "block": [],
+    "name": "",
+    "password": "",
+    "block": [
+        "steam.exe"
+    ],
     "activities": [
         "Computaci\u00f3n",
         "F\u00edsica"

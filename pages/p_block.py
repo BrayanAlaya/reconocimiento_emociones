@@ -1,12 +1,12 @@
+import winreg
 from PyQt6.QtWidgets import QFrame, QVBoxLayout, QLabel, QListWidget, QLineEdit, QListWidgetItem, QMessageBox
 from PyQt6.QtGui import QFont, QColor
 from PyQt6.QtCore import QTimer, QCoreApplication
-from widgets.wg_button import WgButton
-from utils.json_manager import load_json
 import json
-import os
 import psutil
 import threading
+import time
+from widgets.wg_button import WgButton
 
 class PBlock(QFrame):
     def __init__(self, parent=None):
@@ -37,137 +37,95 @@ class PBlock(QFrame):
         delete_app_button.clicked.connect(self.delete_app)
         layout.addWidget(delete_app_button)
 
-    
         self.setLayout(layout)
 
-        # Cargar aplicaciones desde JSON
+        # Cargar aplicaciones bloqueadas desde JSON
         self.load_apps_from_json()
+        self.load_running_executables()  # Listar ejecutables en ejecución
 
         # Atributo para verificar si la concentración está activa
         self.concentration_active = False
         self.enforce_thread = None  # Thread de aplicación de bloqueo
 
-    def closeEvent(self, event):
-        """Evita que el programa se cierre si la concentración está activa."""
-        if self.concentration_active:
-            QMessageBox.warning(self, "Concentración activa", "Finaliza la concentración antes de cerrar.")
-            event.ignore()
-        else:
-            event.accept()  # Permitir el cierre si no está en concentración
+    def load_running_executables(self):
+        """Carga todos los ejecutables actualmente en ejecución."""
+        self.app_list.clear()
+        blocked_apps = self.get_data()  # Obtener los bloqueados del JSON
 
-    def load_executables(self):
-        """Carga todos los archivos .exe disponibles en el sistema."""        
-        self.app_list.clear()  # Limpiar lista antes de cargar
-        exe_files = self.scan_executables()  # Usar el escáner de ejecutables
-        blocked_apps = self.get_data()  # Obtener las apps ya bloqueadas
+        # Listar todos los procesos activos
+        for proc in psutil.process_iter(attrs=['name']):
+            try:
+                exe_name = proc.name()
+                item = QListWidgetItem(exe_name)
 
-        for exe in exe_files:
-            item = QListWidgetItem(exe)
-
-            # Si la aplicación ya está bloqueada, agregar estilo
-            if exe in blocked_apps:
-                font = QFont()
-                font.setBold(True)
-                item.setFont(font)
-                item.setBackground(QColor("#FFDDDD"))  # Fondo distintivo
-
-            self.app_list.addItem(item)
-
-    def scan_executables(self):
-        """Escanea el sistema en busca de archivos .exe."""
-        exe_files = []
-        directories = [os.getenv('ProgramFiles'), os.getenv('ProgramFiles(x86)'), os.getenv('LOCALAPPDATA')]
-
-        for directory in directories:
-            if directory and os.path.exists(directory):
-                for root, dirs, files in os.walk(directory):
-                    for file in files:
-                        if file.endswith('.exe'):
-                            exe_files.append(file)
-        return exe_files
-
-    def block_app(self):
-        """Bloquea la aplicación seleccionada."""        
-        if not self.concentration_active:  # Solo permitir si no hay concentración activa
-            selected_item = self.app_list.currentItem()
-            if selected_item:
-                app_name = selected_item.text()
-                # Verifica si la aplicación ya está bloqueada
-                if app_name not in self.get_data():  
-                    item = QListWidgetItem(app_name)
+                # Marcar las aplicaciones bloqueadas
+                if exe_name in blocked_apps:
                     font = QFont()
                     font.setBold(True)
                     item.setFont(font)
-                    item.setBackground(QColor("#FFDDDD"))  # Fondo distintivo para bloqueados
+                    item.setBackground(QColor("#FFDDDD"))
+
+                self.app_list.addItem(item)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
+
+    def block_app(self):
+        """Bloquea la aplicación seleccionada."""
+        if not self.concentration_active:  # Solo permitir si no hay concentración activa
+            selected_item = self.app_list.currentItem()
+            if selected_item:
+                exe_name = selected_item.text()
+                if exe_name not in self.get_data():  
+                    item = QListWidgetItem(exe_name)
+                    font = QFont()
+                    font.setBold(True)
+                    item.setFont(font)
+                    item.setBackground(QColor("#FFDDDD"))
                     self.app_list.addItem(item)
                     self.save_apps_to_json()
 
     def delete_app(self):
-        """Elimina la aplicación seleccionada."""        
+        """Elimina la aplicación seleccionada."""
         selected_item = self.app_list.currentItem()
         if selected_item:
             self.app_list.takeItem(self.app_list.row(selected_item))
             self.save_apps_to_json()
 
     def save_apps_to_json(self):
-        """Guarda solo las aplicaciones bloqueadas seleccionadas por el usuario en el archivo JSON."""
+        """Guarda las aplicaciones bloqueadas en JSON."""
         blocked_apps = [self.app_list.item(i).text() for i in range(self.app_list.count())
                         if self.app_list.item(i).background().color() == QColor("#FFDDDD")]
 
-        # Cargar datos existentes
-        data = load_json('data/user.json')
-        data['block'] = blocked_apps  # Actualizar la lista de bloqueados
-
+        # Guardar los datos en JSON
         with open('data/user.json', 'w') as file:
-            json.dump(data, file, indent=4)
+            json.dump({'block': blocked_apps}, file, indent=4)
 
     def load_apps_from_json(self):
-        """Carga aplicaciones bloqueadas desde el archivo JSON."""
-        data = load_json('data/user.json')
-        apps = data.get("block", [])
-
-        for app in apps:
-            item = QListWidgetItem(app)
-            font = QFont()
-            font.setBold(True)
-            item.setFont(font)
-            item.setBackground(QColor("#FFDDDD"))  # Fondo distintivo
-            self.app_list.addItem(item)
-
-        # Cargar todos los ejecutables para la búsqueda
-        self.load_executables()
+        """Carga las aplicaciones bloqueadas desde el archivo JSON."""
+        try:
+            with open('data/user.json', 'r') as file:
+                data = json.load(file)
+                apps = data.get("block", [])
+                for app in apps:
+                    item = QListWidgetItem(app)
+                    font = QFont()
+                    font.setBold(True)
+                    item.setFont(font)
+                    item.setBackground(QColor("#FFDDDD"))
+                    self.app_list.addItem(item)
+        except FileNotFoundError:
+            pass  # Si el archivo no existe, no cargar nada
 
     def get_data(self):
-        """Retorna las aplicaciones bloqueadas actualmente."""
+        """Obtiene la lista de aplicaciones bloqueadas."""
         return [self.app_list.item(i).text() for i in range(self.app_list.count())
                 if self.app_list.item(i).background().color() == QColor("#FFDDDD")]
 
     def filter_apps(self):
-        """Filtra las aplicaciones según el texto de búsqueda."""
+        """Filtra aplicaciones según el texto de búsqueda."""
         search_text = self.search_input.text().lower()
         for i in range(self.app_list.count()):
             item = self.app_list.item(i)
-            item.setHidden(search_text not in item.text().lower())  # Ocultar o mostrar según la búsqueda
+            item.setHidden(search_text not in item.text().lower())
 
-    def start_concentration(self):
-        """Inicia la sesión de concentración."""
-        self.concentration_active = True
-        self.block_app_button.setEnabled(False)  # Deshabilitar el botón de bloquear
-        self.enforce_thread = threading.Thread(target=self.enforce_blocking, daemon=True)
-        self.enforce_thread.start()  # Iniciar el hilo de bloqueo
-
-    def enforce_blocking(self):
-        """Bloquea las aplicaciones seleccionadas mientras la concentración está activa."""
-        blocked_apps = self.get_data()
-        while self.concentration_active:
-            for proc in psutil.process_iter(attrs=['pid', 'name']):
-                try:
-                    if proc.info['name'] in blocked_apps:
-                        proc.kill()  # Matar el proceso bloqueado
-                except (psutil.NoSuchProcess, psutil.AccessDenied):
-                    pass
-            threading.Event().wait(2)  # Esperar para reducir uso de CPU
-
-    def release_blocking(self):
-        """Liberar el bloqueo de las aplicaciones."""
-        pass
+    

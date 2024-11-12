@@ -270,5 +270,13 @@
             "happy": 0,
             "sad": 79
         }
+    },
+    "2024-11-12": {
+        "duration": 15,
+        "emotions": {
+            "angry": 70,
+            "happy": 80,
+            "sad": 90
+        }
     }
 }
